@@ -1,0 +1,4 @@
+#!ruby
+# -*- Ruby -*-
+require "jewfish"
+Jewfish.run(*ARGV)
