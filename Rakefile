@@ -2,10 +2,16 @@
 require "bundler/gem_tasks"
 require "rake/testtask.rb"
 
-desc "Start website"
+desc "Start test webserver"
 task :start do
   source = ENV["SRC"] || ENV["SOURCE"] || "sample"
   ruby "-Ilib bin/jewfish start #{source}"
+end
+
+desc "Generate website"
+task :generate do
+  source = ENV["SRC"] || ENV["SOURCE"] || "sample"
+  ruby "-Ilib bin/jewfish generate #{source}"
 end
 
 namespace "test" do

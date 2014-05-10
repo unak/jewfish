@@ -1,3 +1,4 @@
+require "jewfish/auto_index"
 require "jewfish/command"
 require "jewfish/page"
 require "webrick"
@@ -37,7 +38,14 @@ options:
 
       server.mount_proc('/') do |req, res|
         path = req.path.dup
-        path = File.join(path, 'index.html') if File.directory?(File.join(srcdir, path))
+        if File.directory?(File.join(srcdir, path))
+          if path[-1] != '/'
+            res.set_redirect WEBrick::HTTPStatus::MovedPermanently, path + '/'
+            break
+          end
+          path = File.join(path, 'index.html')
+        end
+
         if File.exist?(src = File.join(srcdir, path)) ||
            File.exist?(src = File.join(srcdir, File.dirname(path), File.basename(path, '.*') + '.md')) ||
            File.exist?(src = File.join(srcdir, File.dirname(path), File.basename(path, '.*') + '.md.erb')) ||
@@ -45,18 +53,7 @@ options:
            File.exist?(src = File.join(srcdir, File.dirname(path), '_posts', File.basename(path, '.*') + '.md'))
             res.body = Page.convert(src, path)
         elsif File.directory?(File.join(srcdir, req.path, '_posts'))
-          page = Page.new(nil, path)
-          page.src = File.join(srcdir, File.dirname(path), 'index.md.erb')
-          page.params['layout'] = 'page'
-          page.params['title'] = File.basename(req.path).capitalize
-          page.content = <<-EOC
-# <%= @title %>
-<% Dir.glob(File.join(@dir, '_posts', '*.md')).sort_by{|e| -File.mtime(e).to_i}.each do |md| %>
-<%  entry = Jewfish::Page.new(md, File.join(File.dirname(@path), File.basename(md, '.md') + '.html')) %>
-* [<%= entry['title'] %>](<%= entry.path %>)
-<% end %>
-          EOC
-          res.body = page.convert
+          res.body = AutoIndex.convert(File.join(srcdir, File.dirname(path), 'index.md.erb'), File.dirname(path))
         else
           raise WEBrick::HTTPStatus::NotFound, path
         end

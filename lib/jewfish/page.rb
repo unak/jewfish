@@ -5,7 +5,7 @@ require "yaml"
 module Jewfish
   class Page
     def self.convert(src, path, content: nil, params: {})
-      page = Page.new(src, path)
+      page = self.new(src, path)
       page.convert(content, params)
     end
 
