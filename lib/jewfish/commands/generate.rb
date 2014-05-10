@@ -6,6 +6,10 @@ module Jewfish
   class Generate < Command
     desc "Generate your website."
     usage "generate <source directory> [options]"
+    longdesc <<-EOD
+options:
+  --out=<dir>  specify output directory (default: _out)
+    EOD
 
     def initialize(srcdir, *opts)
       tmp = parse_options(opts)
