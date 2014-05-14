@@ -7,7 +7,7 @@ module Jewfish
 
       @src = src.dup
       @params = {
-        'layout' => 'page',
+        'layout' => 'default',
         'title' => File.basename(path).capitalize,
       }
       @content = <<-EOC
