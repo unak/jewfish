@@ -1,5 +1,6 @@
 require "jewfish/auto_index"
 require "jewfish/command"
+require "jewfish/format"
 require "jewfish/page"
 require "webrick"
 
@@ -46,17 +47,23 @@ options:
           path = File.join(path, 'index.html')
         end
 
-        if File.exist?(src = File.join(srcdir, path)) ||
-           File.exist?(src = File.join(srcdir, File.dirname(path), File.basename(path, '.*') + '.md')) ||
-           File.exist?(src = File.join(srcdir, File.dirname(path), File.basename(path, '.*') + '.md.erb')) ||
-           File.exist?(src = File.join(srcdir, File.dirname(path), File.basename(path) + '.erb')) ||
-           File.exist?(src = File.join(srcdir, File.dirname(path), '_posts', File.basename(path, '.*') + '.md'))
-            res.body = Page.convert(src, path)
-        elsif File.directory?(File.join(srcdir, req.path, '_posts'))
-          res.body = AutoIndex.convert(File.join(srcdir, File.dirname(path), 'index.md.erb'), File.dirname(path))
-        else
-          raise WEBrick::HTTPStatus::NotFound, path
+        src = File.join(srcdir, path)
+        found = false
+          Dir.glob([File.join(srcdir, path.sub(%r'\.[^/]*\z', '') + '.*'), File.join(srcdir, File.dirname(path), '_posts', File.basename(path).sub(%r'\.[^/]*\z', '') + '.*')]) do |file|
+          if Format.output_filename(file) == src
+            res.body = Page.convert(file, path)
+            found = true
+            break
+          end
         end
+        unless found
+          if %r'/index\.html\z' =~ path && File.directory?(File.join(srcdir, req.path, '_posts'))
+            res.body = AutoIndex.convert(File.join(srcdir, File.dirname(path), 'index.md.erb'), File.dirname(path))
+          else
+            raise WEBrick::HTTPStatus::NotFound, path
+          end
+        end
+
         res.content_type = WEBrick::HTTPUtils.mime_type(path, WEBrick::HTTPUtils::DefaultMimeTypes)
         if res.content_type == "text/html"
           res.content_type << "; charset=utf-8"

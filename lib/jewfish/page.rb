@@ -1,5 +1,5 @@
 require "erb"
-require "kramdown"
+require "jewfish/format"
 require "yaml"
 
 module Jewfish
@@ -32,8 +32,17 @@ module Jewfish
     end
 
     def convert(content = nil, params = {})
-      erb(content, params) if /\.erb\z/ =~ src
-      convert_md if /\.md\b/ =~ src
+      File.basename(src).split(/(?=\.)/)[1..-1].reverse_each do |ext|
+        if ext == '.erb'
+          erb(content, params)
+        else
+          begin
+            @content = Format.convert(@content, ext)
+          rescue Jewfish::UnknownFormat
+            break
+          end
+        end
+      end
       apply_layout
       to_s
     end

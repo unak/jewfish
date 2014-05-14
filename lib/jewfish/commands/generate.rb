@@ -1,5 +1,6 @@
 require "jewfish/auto_index"
 require "jewfish/command"
+require "jewfish/format"
 require "jewfish/page"
 
 module Jewfish
@@ -19,7 +20,7 @@ options:
 
       Dir.glob(File.join(srcdir, '**', '*.{html,md,erb}')).each do |src|
         next if %r'/(_.*?)/' =~ src && $1 != '_posts'
-        path = src[srcdir.size..-1].sub(%r'/_posts/', '/').sub(/\.md(\.erb)?\z/, '.html')
+        path = Format.output_filename(src)[srcdir.size..-1]
         content = Page.convert(src, path)
         out = File.join(opts[:out], path)
         mkdir_p(File.dirname(out)) unless File.exist?(File.dirname(out))
