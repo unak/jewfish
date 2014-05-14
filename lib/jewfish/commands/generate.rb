@@ -28,9 +28,9 @@ options:
           f.print content
         end
 
-        if %r'/_posts/' =~ src
+        if %r'/_posts\z' =~ File.dirname(src)
           index = File.join(opts[:out], $`[srcdir.size..-1], 'index.html')
-          content = AutoIndex.convert(File.join($`, 'index.md.erb'), $`[srcdir.size..-1])
+          content = AutoIndex.convert(File.join($`, 'index.md.erb'), File.join($`[srcdir.size..-1], 'index.html'))
           File.open(index, 'wb') do |f|
             f.print content
           end
