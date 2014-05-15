@@ -41,7 +41,7 @@ options:
     def mkdir_p(dir)
       cur = nil
       dir.split(%r'/').each do |d|
-        cur = cur ? File.join(cur, d) : d
+        cur = cur ? File.join(cur, d) : d.empty? ? '/' : d
         Dir.mkdir(cur) unless File.exist?(cur)
       end
     end

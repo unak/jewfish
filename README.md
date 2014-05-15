@@ -16,7 +16,7 @@ A tiny website generator.
 Requirements
 ------------
 
-* ruby 1.9.3 or newer
+* ruby 2.0.0 or newer
 * kramdown
 
 
