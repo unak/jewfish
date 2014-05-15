@@ -53,7 +53,7 @@ module Jewfish
 
     def erb(content = nil, params = {})
       params = @params.merge(params)
-      erb = ERB.new(@content, nil, '<>', @src.gsub(/\W/, '_'))
+      erb = ERB.new(@content, nil, '<>', '_' + @src.gsub(/\W/, '_'))
       mod = erb.def_module
       obj = Object.new
       obj.extend(mod)

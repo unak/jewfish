@@ -17,6 +17,8 @@ options:
   --DoNotReverseLookup     do not reverse lookup (default: false)
     EOD
 
+    attr_reader :server
+
     def initialize(srcdir, *opts)
       tmp = parse_options(opts)
       opts = {}
@@ -25,11 +27,17 @@ options:
       opts[:MaxClients] = (tmp.delete(:MaxClients) || 4).to_i
       opts[:RequestTimeout] = (tmp.delete(:RequestTimeout) || 30).to_i
       opts[:DoNotReverseLookup] = tmp.delete(:DoNotReverseLookup)
+      detach = tmp.delete(:Detach)
+      logger = tmp.delete(:Logger)
+      if logger
+        opts[:Logger] = WEBrick::Log.new(logger)
+        opts[:AccessLog] = [[opts[:Logger], WEBrick::AccessLog::COMMON_LOG_FORMAT]]
+      end
       raise "Invalid parameter(s): #{tmp.keys.join(', ')}" unless tmp.empty?
 
-      server = WEBrick::HTTPServer.new(opts)
+      @server = WEBrick::HTTPServer.new(opts)
 
-      shut = proc {server.shutdown}
+      shut = proc {@server.shutdown}
       siglist = %w"TERM QUIT"
       siglist << %w"HUP INT" if $stdin.tty?
       siglist &= Signal.list.keys
@@ -37,7 +45,7 @@ options:
         Signal.trap(sig, shut)
       end
 
-      server.mount_proc('/') do |req, res|
+      @server.mount_proc('/') do |req, res|
         path = req.path.dup
         if File.directory?(File.join(srcdir, path))
           if path[-1] != '/'
@@ -57,7 +65,7 @@ options:
           end
         end
         unless found
-          if %r'/index\.html\z' =~ path && File.directory?(File.join(srcdir, req.path, '_posts'))
+          if %r'/index\.html\z' =~ path && File.directory?(File.join(srcdir, File.dirname(path), '_posts'))
             res.body = AutoIndex.convert(File.join(srcdir, File.dirname(path), 'index.md.erb'), path)
           else
             raise WEBrick::HTTPStatus::NotFound, path
@@ -70,7 +78,14 @@ options:
         end
       end
 
-      server.start
+      if detach
+        Thread.new do
+          @server.start
+        end
+        sleep 0.1
+      else
+        @server.start
+      end
     end
   end
 end
