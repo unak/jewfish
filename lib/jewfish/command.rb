@@ -36,6 +36,14 @@ module Jewfish
         io.puts "Usage: jewfish #{@usage}"
       end
 
+      def synonims
+        name = self.name.to_s.sub(/.*::/, '').downcase
+        syns = @@synonims.select{|k, v| v.to_s == name}.map{|k, v| k.to_s}
+        name << " (#{syns.join(', ')})" unless syns.empty?
+        name
+      end
+
+      private
       def req
         reqs = instance_method(:initialize).parameters.find{|e| e.first == :req}
         reqs ? reqs.size - 1 : 0
@@ -50,14 +58,6 @@ module Jewfish
         instance_method(:initialize).parameters.find{|e| e.first == :rest}
       end
 
-      def synonims
-        name = self.name.to_s.sub(/.*::/, '').downcase
-        syns = @@synonims.select{|k, v| v.to_s == name}.map{|k, v| k.to_s}
-        name << " (#{syns.join(', ')})" unless syns.empty?
-        name
-      end
-
-      private
       def desc(str)
         @desc = str
       end
