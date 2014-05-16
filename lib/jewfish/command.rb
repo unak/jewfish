@@ -43,7 +43,7 @@ module Jewfish
         name
       end
 
-      private
+      protected
       def req
         reqs = instance_method(:initialize).parameters.find{|e| e.first == :req}
         reqs ? reqs.size - 1 : 0
@@ -58,6 +58,7 @@ module Jewfish
         instance_method(:initialize).parameters.find{|e| e.first == :rest}
       end
 
+      private
       def desc(str)
         @desc = str
       end
