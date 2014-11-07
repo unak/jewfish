@@ -2,7 +2,7 @@
 require "bundler/gem_tasks"
 require "rake/testtask.rb"
 
-desc "Start test webserver"
+desc "Start test webserver; can specify the source with SOURCE="
 task :start do
   source = ENV["SRC"] || ENV["SOURCE"] || "sample"
   ruby "-Ilib bin/jewfish start #{source}"
