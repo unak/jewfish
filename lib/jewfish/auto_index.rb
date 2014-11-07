@@ -20,7 +20,7 @@ module Jewfish
 <% end %>
 <% Dir.glob(File.join(@dir, '_posts', '*.md')).sort_by{|e| -File.mtime(e).to_i}.each do |md| %>
 <%  entry = Jewfish::Page.new(md, File.basename(md, '.md') + '.html') %>
-* [<%= entry['title'] %>](<%= entry.path %>)
+* [<%= entry['title'] %>](<%= entry.path.sub(%r'/index\.html$', '/') %>)
 <% end %>
       EOC
     end
