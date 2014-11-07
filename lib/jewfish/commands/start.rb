@@ -20,6 +20,7 @@ options:
     attr_reader :server
 
     def initialize(srcdir, *opts)
+      srcdir = File.expand_path(srcdir)
       tmp = parse_options(opts)
       opts = {}
       opts[:Port] = (tmp.delete(:Port) || 3000).to_i
