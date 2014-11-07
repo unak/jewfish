@@ -14,6 +14,7 @@ module Jewfish
     def initialize(src, path)
       @src = src.dup if src
       @path = path.dup
+      @path.sub!(/(?=^|\/)(\d{4})-(\d{2})-(\d{2})-([^\/]+)(\.[^\.]+)$/, '\\1/\\2/\\3/\\4/index\\5')
       @content = @plain = File.binread(src) if src
       if /\A---\r?\n/ =~ @plain
         @params = YAML.load(@plain)

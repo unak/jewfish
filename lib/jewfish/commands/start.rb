@@ -48,7 +48,7 @@ options:
 
       @server.mount_proc('/') do |req, res|
         path = req.path.dup
-        if File.directory?(File.join(srcdir, path))
+        if File.directory?(File.join(srcdir, path)) || path[-1] == '/'
           if path[-1] != '/'
             res.set_redirect WEBrick::HTTPStatus::MovedPermanently, path + '/'
             break
@@ -58,7 +58,8 @@ options:
 
         src = File.join(srcdir, path)
         found = false
-          Dir.glob([File.join(srcdir, path.sub(%r'\.[^/]*\z', '') + '.*'), File.join(srcdir, File.dirname(path), '_posts', File.basename(path).sub(%r'\.[^/]*\z', '') + '.*')]) do |file|
+        Dir.glob([File.join(srcdir, path.sub(%r'\.[^/]*\z', '') + '.*'), File.join(srcdir, File.dirname(path), '_posts', File.basename(path, '.*') + '.*'), File.join(srcdir, File.dirname(path.sub(%r'/\d{4}/\d{2}/\d{2}/[^/]+/', '/')), '_posts', File.basename(path.sub(%r'/(\d{4})/(\d{2})/(\d{2})/([^/]+)/index', '/\\1-\\2-\\3-\\4'), '.*') + '.*')]) do |file|
+          p [file, src, Format.output_filename(file)]
           if Format.output_filename(file) == src
             res.body = Page.convert(file, path)
             found = true

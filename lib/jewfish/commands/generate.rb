@@ -21,11 +21,11 @@ options:
       Dir.glob(File.join(srcdir, '**', '*.{html,md,erb}')).each do |src|
         next if %r'/(_.*?)/' =~ src && $1 != '_posts'
         path = Format.output_filename(src)[srcdir.size..-1]
-        content = Page.convert(src, path)
-        out = File.join(opts[:out], path)
+        page = Page.new(src, path)
+        out = File.join(opts[:out], page.path)
         mkdir_p(File.dirname(out)) unless File.exist?(File.dirname(out))
         File.open(out, 'wb') do |f|
-          f.print content
+          f.print page.content
         end
 
         if %r'/_posts\z' =~ File.dirname(src)

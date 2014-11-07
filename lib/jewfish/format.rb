@@ -25,7 +25,7 @@ module Jewfish
       end
       file = file[0..-(exts.join.length + 1)]
       file << '.html' unless /\./ =~ file
-      File.join(dir, file)
+      File.join(dir, file).sub(%r'/(\d{4})-(\d{2})-(\d{2})-([^/]+)(\.[^\.]+)$', '/\\1/\\2/\\3/\\4/index\\5')
     end
 
     Dir.glob(File.join(File.dirname(__FILE__), 'formats', '*.rb')) do |file|
