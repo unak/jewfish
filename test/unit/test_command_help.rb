@@ -24,16 +24,16 @@ class TestHelp < Test::Unit::TestCase
     h = redirect do
       Jewfish::Help.new
     end
-    assert_match /\AUsage:/, h
-    assert_match /^Avairable subcommands:\s*$/, h
+    assert_match(/\AUsage:/, h)
+    assert_match(/^Avairable subcommands:\s*$/, h)
 
     /^Avairable subcommands:\s*$\s*/ =~ h
     $'.split(/\)?\s+\(?/).each do |subcmd|
       h = redirect do
         Jewfish::Help.new(subcmd)
       end
-      assert_match /\A(?:#{subcmd}(?: \((?:\w+, )*\w+\))?|\w+ \((?:\w+, )*#{subcmd}(?:, \w+)*\)):/, h
-      assert_match /^Usage:/, h
+      assert_match(/\A(?:#{subcmd}(?: \((?:\w+, )*\w+\))?|\w+ \((?:\w+, )*#{subcmd}(?:, \w+)*\)):/, h)
+      assert_match(/^Usage:/, h)
     end
   end
 end
