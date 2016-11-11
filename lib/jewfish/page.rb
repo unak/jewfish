@@ -15,7 +15,11 @@ module Jewfish
       @src = src.dup if src
       @path = path.dup
       @path.sub!(/(?=^|\/)(\d{4})-(\d{2})-(\d{2})-([^\/]+)(\.[^\.]+)$/, '\\1/\\2/\\3/\\4/index\\5')
-      @content = @plain = File.binread(src) if src
+      if src
+        @content = @plain = File.binread(src)
+      else
+        @content = @plain = nil
+      end
       if /\A---\r?\n/ =~ @plain
         @params = YAML.load(@plain)
         @content = @plain.sub(/\A---$.*?^---$\s*/m, '')
@@ -81,6 +85,22 @@ module Jewfish
           dir = File.dirname(dir)
         end
         warn "layout '#{@params['layout']}' is not found" unless applied
+      elsif @params["layout"].nil?
+        @content = <<-EOC
+<!DOCTYPE html>
+<html>
+<title>#{@params['title'] || File.basename(@path, '.html')}</title>
+<style><!--
+pre {
+  padding: 1ex 1em 1ex 1em;
+  background-color: lightgrey;
+}
+//--></style>
+<body>
+#{@content}
+</body>
+</html>
+        EOC
       end
     end
   end
