@@ -66,7 +66,7 @@ options:
           end
         end
         unless found
-          if %r'/index\.html\z' =~ path && Dir.glob(File.join(srcdir, File.dirname(path), '**', '_posts'))
+          if %r'/index\.html\z' =~ path && !Dir.glob([File.join(srcdir, File.dirname(path), '**', '_posts'), File.join(srcdir, File.dirname(path), '*.{html,md,md.erb}')]).empty?
             res.body = AutoIndex.convert(File.join(srcdir, File.dirname(path), 'index.md.erb'), path)
           else
             raise WEBrick::HTTPStatus::NotFound, path
